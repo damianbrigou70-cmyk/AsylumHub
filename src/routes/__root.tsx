@@ -8,7 +8,6 @@ import {
   Link,
 } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
-import { AuthProvider } from "@/contexts/AuthContext";
 import { SmoothScroll } from "@/components/ui-custom/SmoothScroll";
 import { EmberField } from "@/components/ui-custom/EmberField";
 import { BRAND } from "@/lib/brand";
@@ -118,17 +117,15 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <SmoothScroll />
-        <EmberField />
-        <Outlet />
-        <Toaster
+      <SmoothScroll />
+      <EmberField />
+      <Outlet />
+      <Toaster
           position="bottom-right"
           toastOptions={{
             className: "glass-strong text-foreground border-glass-border",
           }}
         />
-      </AuthProvider>
     </QueryClientProvider>
   );
 }

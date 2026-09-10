@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { GradientMesh } from "@/components/ui-custom/GradientMesh";
 import { GlassPanel } from "@/components/ui-custom/GlassPanel";
-import { useAuth } from "@/contexts/AuthContext";
 import { BRAND } from "@/lib/brand";
 import {
   IconCampaign,
@@ -73,7 +72,9 @@ const FEATURES = [
 ];
 
 function LandingPage() {
-  const { session, loading } = useAuth();
+  // Demo mode - no authentication
+  const session = null;
+  const loading = false;
   const navigate = useNavigate();
 
   useEffect(() => {

@@ -2,7 +2,6 @@ import { createFileRoute, Outlet, Link, useLocation, useNavigate } from "@tansta
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "@/contexts/AuthContext";
 import { GradientMesh } from "@/components/ui-custom/GradientMesh";
 import {
   IconLogo,
@@ -179,7 +178,10 @@ function ActiveBloom() {
 
 
 function AppShell() {
-  const { session, loading, user } = useAuth();
+  // Demo/offline mode - no authentication
+  const session = { user: { id: "demo-user" } };
+  const loading = false;
+  const user = { id: "demo-user", email: "demo@example.com" };
   const loc = useLocation();
   const nav = useNavigate();
   const focusParam = ((loc.search as Record<string, unknown> | undefined)?.focus as string) ?? "";
