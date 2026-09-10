@@ -1,0 +1,13 @@
+{
+  "items": [
+    {
+      "id": "test-0001",
+      "ts": 1,
+      "classname": "SurvivorM_Boris",
+      "x": 7000,
+      "y": 0,
+      "z": 7500,
+      "sig": "unused-not-verified-by-mod"
+    }
+  ]
+}
