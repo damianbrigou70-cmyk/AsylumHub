@@ -3,10 +3,12 @@ import {
   Outlet,
   createRootRouteWithContext,
   useRouter,
+  useLocation,
   HeadContent,
   Scripts,
   Link,
 } from "@tanstack/react-router";
+import { AnimatePresence, motion } from "framer-motion";
 import { Toaster } from "@/components/ui/sonner";
 import { SmoothScroll } from "@/components/ui-custom/SmoothScroll";
 import { EmberField } from "@/components/ui-custom/EmberField";
@@ -115,11 +117,22 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const location = useLocation();
   return (
     <QueryClientProvider client={queryClient}>
       <SmoothScroll />
       <EmberField />
-      <Outlet />
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={location.pathname}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <Outlet />
+        </motion.div>
+      </AnimatePresence>
       <Toaster
           position="bottom-right"
           toastOptions={{

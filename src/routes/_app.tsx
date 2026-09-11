@@ -378,10 +378,17 @@ function AppShell() {
                         : "text-muted-foreground hover:bg-glass/50 hover:text-foreground"
                     }`}
                   >
-                    <span className="relative z-10 inline-flex">
+                    {active && (
+                      <motion.span
+                        layoutId="sidebar-active-pill"
+                        className="absolute inset-0 -z-10 rounded-xl bg-glass"
+                        transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                      />
+                    )}
+                    <motion.span className="relative z-10 inline-flex" whileHover={{ scale: 1.12 }} transition={{ duration: 0.15 }}>
                       <n.Icon size={18} className={active ? "text-primary" : ""} />
                       {active && collapsed && <ActiveBloom />}
-                    </span>
+                    </motion.span>
 
                     {!collapsed && (
                       <span className="relative z-10 flex-1">
