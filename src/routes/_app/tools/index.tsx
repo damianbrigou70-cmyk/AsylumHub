@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useCallback, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { z } from "zod";
 import {
@@ -364,6 +364,8 @@ function ToolsHub() {
         .server-shop-root .shop-card-pill { border-color: rgba(255, 255, 255, 0.22); background: rgba(255, 255, 255, 0.06); color: #eeeeee; }
         @keyframes servershop-scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
         @keyframes servershop-shine { 0% { transform: translateX(-140%) skewX(-20deg); } 100% { transform: translateX(240%) skewX(-20deg); } }
+        .shop-card-shine::after { content: ""; position: absolute; inset-y: 0; left: 0; width: 34%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent); transform: translateX(-140%) skewX(-20deg); opacity: 0; transition: opacity 0.2s ease; }
+        .shop-card-shine:hover::after { opacity: 1; animation: servershop-shine 1.1s ease-out; }
       `}</style>
       <div className="shop-atmosphere" aria-hidden>
         <div className="shop-desert" />
@@ -383,23 +385,24 @@ function ToolsHub() {
             }}
           />
         ))}
-        {!tool && (
-          <>
-            <div
-              className="pointer-events-none absolute inset-x-0 top-0 h-40 opacity-[0.08]"
-              style={{
-                background: "linear-gradient(180deg, transparent, rgba(255,200,120,0.9), transparent)",
-                animation: "servershop-scan 7s linear infinite",
-              }}
-            />
-            <div className="pointer-events-none absolute inset-6 sm:inset-10">
-              {(["top-4 left-4 border-l border-t", "top-4 right-4 border-r border-t"] as const).map((pos) => (
-                <span key={pos} className={`absolute size-8 sm:size-12 border-primary/30 ${pos}`} />
-              ))}
-            </div>
-          </>
-        )}
       </div>
+
+      {!tool && (
+        <div className="pointer-events-none absolute inset-0 z-[1] overflow-hidden" aria-hidden>
+          <div
+            className="absolute inset-x-0 top-0 h-40 opacity-[0.14]"
+            style={{
+              background: "linear-gradient(180deg, transparent, rgba(255,200,120,0.9), transparent)",
+              animation: "servershop-scan 7s linear infinite",
+            }}
+          />
+          <div className="absolute inset-6 sm:inset-10">
+            {(["top-4 left-4 border-l border-t", "top-4 right-4 border-r border-t"] as const).map((pos) => (
+              <span key={pos} className={`absolute size-8 sm:size-12 border-primary/60 ${pos}`} />
+            ))}
+          </div>
+        </div>
+      )}
 
       <header className="shop-masthead relative z-10">
         {tool && (
@@ -409,11 +412,11 @@ function ToolsHub() {
         <div className="mt-3 flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
           {!tool && (
             <div className="shop-badge-row">
-              <div className="relative flex size-[42px] items-center justify-center">
+              <div className="relative flex size-[46px] items-center justify-center">
                 <motion.span
-                  className="absolute inset-0 rounded-full border border-primary/30 border-t-primary"
+                  className="absolute inset-0 rounded-full border-2 border-primary/25 border-t-primary"
                   animate={{ rotate: 360 }}
-                  transition={{ duration: 7, repeat: Infinity, ease: "linear" }}
+                  transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
                 />
                 <PageHexBadge hue={88} size={26} icon={<IconBolt size={22} />} aria-label="Server shop" />
               </div>
@@ -456,7 +459,7 @@ function ToolsHub() {
               <div className="shop-hero-meta">
                 <div className="shop-hero-stat">
                   <span>Active services</span>
-                  <strong>24</strong>
+                  <strong><AnimatedCount value={24} /></strong>
                 </div>
                 <div className="shop-hero-stat">
                   <span>Raid status</span>
@@ -477,7 +480,7 @@ function ToolsHub() {
         {!tool && <hr className="spectrum-divider mt-8" />}
 
         {!tool && (
-          <div className="mx-auto mt-5 flex w-fit items-center gap-1 rounded-full border border-white/15 bg-black/70 p-1" role="tablist" aria-label="Shop sections">
+          <div className="relative mx-auto mt-5 flex w-fit items-center gap-1 rounded-full border border-white/15 bg-black/70 p-1" role="tablist" aria-label="Shop sections">
             {([ ["server", "Server Shop"], ["items", "Item Shop"] ] as const).map(([id, label]) => (
               <button
                 key={id}
@@ -485,8 +488,11 @@ function ToolsHub() {
                 role="tab"
                 aria-selected={shopTab === id}
                 onClick={() => setShopTab(id)}
-                className={`rounded-full px-5 py-2 text-xs uppercase tracking-[0.18em] transition ${shopTab === id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                className={`relative z-10 rounded-full px-5 py-2 text-xs uppercase tracking-[0.18em] transition ${shopTab === id ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
               >
+                {shopTab === id && (
+                  <motion.span layoutId="shop-tab-pill" className="absolute inset-0 -z-10 rounded-full bg-primary" transition={{ type: "spring", stiffness: 420, damping: 32 }} />
+                )}
                 {label}
               </button>
             ))}
@@ -619,12 +625,16 @@ function ServiceDirectory({ onOpen }: { onOpen: (focus: string) => void }) {
     <section className="shop-directory-wrap" aria-label="Server service directory">
       <div className="shop-directory-shell">
         <div className="shop-directory-grid">
-          {SERVICE_GROUPS.map((group) => (
-            <button
+          {SERVICE_GROUPS.map((group, index) => (
+            <motion.button
               key={group.name}
               type="button"
               onClick={() => group.items[0] && onOpen(group.items[0].focus)}
-              className="shop-card group"
+              className="shop-card group shop-card-shine"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.06, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              whileHover={{ y: -3 }}
             >
               <span className="shop-card-art" aria-hidden>
                 {group.name === "Faction Hub" && <img src="/factions.jpg" alt="" />}
@@ -649,12 +659,29 @@ function ServiceDirectory({ onOpen }: { onOpen: (focus: string) => void }) {
                 </span>
               </span>
               <IconArrowRight size={14} className="ml-auto mt-auto text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground" />
-            </button>
+            </motion.button>
           ))}
         </div>
       </div>
     </section>
   );
+}
+
+function AnimatedCount({ value }: { value: number }) {
+  const [display, setDisplay] = useState(0);
+  useEffect(() => {
+    const start = performance.now();
+    const duration = 900;
+    let frame: number;
+    const tick = (now: number) => {
+      const progress = Math.min(1, (now - start) / duration);
+      setDisplay(Math.round(value * (1 - Math.pow(1 - progress, 3))));
+      if (progress < 1) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [value]);
+  return <>{display}</>;
 }
 
 function ItemShop() {
