@@ -324,8 +324,8 @@ function ToolsHub() {
         .server-shop-root .shop-card:hover { border-color: rgba(255, 255, 255, 0.58); box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25), 0 0 24px rgba(255, 255, 255, 0.08); }
         .server-shop-root .shop-card::before { background: linear-gradient(180deg, #ffffff, #666666); }
         .server-shop-root .shop-card-art { border-color: rgba(255, 255, 255, 0.22); background: #111111; }
-        .server-shop-root .shop-card-art { width: 100%; height: 148px; flex-shrink: 0; }
-        .server-shop-root .shop-card-art img { object-fit: contain; padding: 12px; }
+        .item-shop-catalog .shop-card-art { width: 100%; height: 148px; flex-shrink: 0; }
+        .item-shop-catalog .shop-card-art img { object-fit: contain; padding: 12px; }
         .server-shop-root .shop-card-title { color: #f5f5f5; }
         .server-shop-root .shop-card-meta { color: rgba(216, 216, 216, 0.62); }
         .server-shop-root .shop-card-pill { border-color: rgba(255, 255, 255, 0.22); background: rgba(255, 255, 255, 0.06); color: #eeeeee; }
@@ -639,7 +639,7 @@ function ItemShop() {
   const selectedTotal = selected ? selected.price * quantity : 0;
 
   return (
-    <section className="shop-directory-wrap" aria-label="Item Shop catalog">
+    <section className="shop-directory-wrap item-shop-catalog" aria-label="Item Shop catalog">
       <div className="shop-directory-shell">
             <div className="border-b border-white/10 p-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
