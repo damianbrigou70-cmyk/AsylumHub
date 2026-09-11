@@ -22,7 +22,6 @@ const QUICK = [
   { to: "/factions", label: "Factions", desc: "Wars & bounties", Icon: IconWorkspace, hue: 280 },
   { to: "/tools/npc-shop", label: "NPC Shop", desc: "Buy & spawn NPCs", Icon: IconImport, hue: 160 },
   { to: "/account", label: "Account", desc: "Discord â†’ PSN", Icon: IconAudience, hue: 260 },
-  { to: "/admin", label: "Admin", desc: "Restarts & overrides", Icon: IconBolt, hue: 30 },
 ] as const;
 
 function Dashboard() {
@@ -42,12 +41,19 @@ function Dashboard() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <DayZPageHeader
-        title={`${BRAND.name} lobby`}
-        subtitle={BRAND.tagline}
-        icon={<IconBolt size={16} />}
-        hue={12}
-      />
+      <section className="relative mb-8 overflow-hidden rounded-[2rem] border border-primary/30 bg-black px-6 py-10 shadow-[0_0_70px_-25px_color-mix(in_oklab,var(--primary)_45%,transparent)] sm:px-10">
+        <div className="pointer-events-none absolute inset-0 opacity-30 [background-image:linear-gradient(135deg,transparent_0%,transparent_48%,color-mix(in_oklab,var(--primary)_20%,transparent)_49%,transparent_50%),linear-gradient(45deg,transparent_0%,transparent_48%,color-mix(in_oklab,var(--primary)_12%,transparent)_49%,transparent_50%)] [background-size:42px_42px]" />
+        <div className="relative max-w-2xl">
+          <div className="mb-4 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-primary">
+            <span className="h-px w-10 bg-primary" /> Asylum command hall
+          </div>
+          <h1 className="font-display text-5xl leading-none text-primary sm:text-7xl">{BRAND.name}</h1>
+          <p className="mt-4 max-w-lg text-sm text-zinc-300 sm:text-base">{BRAND.tagline}</p>
+          <div className="mt-7 flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-zinc-500">
+            <IconBolt size={14} className="text-primary" /> Live operational board
+          </div>
+        </div>
+      </section>
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
         <GlassPanel className="p-4">

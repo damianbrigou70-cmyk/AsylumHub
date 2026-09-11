@@ -11,7 +11,7 @@
  */
 
 @theme inline {
-  --font-display: "Sora", "Urbanist", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "MedievalSharp", "Sora", serif;
   --font-sans: "Manrope", "Epilogue", "Inter Tight", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Instrument Serif", "Iowan Old Style", Georgia, serif;
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", monospace;
@@ -60,10 +60,10 @@
 :root {
   --radius: 16px;
 
-  /* Carbon surface stack, warmed toward ember red. */
-  --surface-0: oklch(0.07 0.014 25);
-  --surface-1: oklch(0.13 0.018 22);
-  --surface-2: oklch(0.18 0.022 20);
+  /* Black iron surfaces with a restrained antique-gold signal. */
+  --surface-0: oklch(0.045 0.006 80);
+  --surface-1: oklch(0.09 0.008 75);
+  --surface-2: oklch(0.14 0.012 72);
 
   --background: var(--surface-0);
   --foreground: oklch(0.97 0.006 40);
@@ -76,31 +76,31 @@
   --popover-foreground: oklch(0.97 0.006 40);
 
   /* Ember red primary */
-  --primary: oklch(0.64 0.22 25);
-  --primary-foreground: oklch(0.98 0.01 25);
+  --primary: oklch(0.78 0.16 80);
+  --primary-foreground: oklch(0.12 0.01 80);
 
   /* Warm scarlet accent */
-  --secondary: oklch(0.72 0.19 35);
-  --secondary-foreground: oklch(0.16 0.04 35);
+  --secondary: oklch(0.68 0.12 78);
+  --secondary-foreground: oklch(0.1 0.01 80);
 
-  --muted: oklch(0.22 0.016 25);
-  --muted-foreground: oklch(0.74 0.016 30);
+  --muted: oklch(0.2 0.012 75);
+  --muted-foreground: oklch(0.72 0.018 80);
 
-  --accent: oklch(0.7 0.2 15);
-  --accent-foreground: oklch(0.16 0.04 15);
+  --accent: oklch(0.8 0.15 85);
+  --accent-foreground: oklch(0.1 0.01 80);
 
-  --destructive: oklch(0.65 0.22 25);
+  --destructive: oklch(0.58 0.18 25);
   --destructive-foreground: oklch(0.98 0.01 25);
 
   --border: oklch(1 0 0 / 0.06);
   --input: oklch(1 0 0 / 0.04);
-  --ring: oklch(0.64 0.22 25 / 0.55);
+  --ring: oklch(0.78 0.16 80 / 0.55);
 
   /* Legacy token names repointed to new palette */
-  --mint: oklch(0.64 0.22 25);
-  --mint-foreground: oklch(0.98 0.01 25);
-  --amber: oklch(0.72 0.19 35);
-  --amber-foreground: oklch(0.16 0.04 35);
+  --mint: oklch(0.78 0.16 80);
+  --mint-foreground: oklch(0.12 0.01 80);
+  --amber: oklch(0.68 0.12 78);
+  --amber-foreground: oklch(0.1 0.01 80);
 
   --glass: oklch(1 0 0 / 0.035);
   --glass-strong: oklch(1 0 0 / 0.065);
@@ -115,8 +115,8 @@
     inset 0 1px 0 0 oklch(1 0 0 / 0.05),
     0 0 0 1px oklch(1 0 0 / 0.04),
     0 24px 60px -24px oklch(0 0 0 / 0.8);
-  --shadow-glow: 0 0 40px -6px oklch(0.64 0.22 25 / 0.4);
-  --shadow-accent: 0 8px 32px -8px oklch(0.72 0.19 35 / 0.28);
+  --shadow-glow: 0 0 40px -6px oklch(0.78 0.16 80 / 0.32);
+  --shadow-accent: 0 8px 32px -8px oklch(0.68 0.12 78 / 0.24);
 
   /* Editorial motion easings */
   --ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
@@ -137,7 +137,7 @@
     radial-gradient(70% 90% at 50% 100%, oklch(0.86 0.14 88 / 0.25), transparent 70%);
 }
 
-/* Light mode — opt-in via .light class on <html>. App is dark-first. */
+/* Light mode ΓÇö opt-in via .light class on <html>. App is dark-first. */
 .light {
   --background: oklch(0.985 0.003 240);
   --foreground: oklch(0.18 0.02 240);
@@ -184,7 +184,7 @@
   }
 
   html {
-    /* 17px base — keeps existing rem scale intentional and readable. */
+    /* 17px base ΓÇö keeps existing rem scale intentional and readable. */
     font-size: 17px;
     background-color: var(--color-ink);
     color: var(--color-foreground);
@@ -343,7 +343,7 @@
   animation: tick-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Hover lift — tactile, with indigo rim on accent */
+/* Hover lift ΓÇö tactile, with indigo rim on accent */
 .lift {
   transition:
     transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
@@ -363,10 +363,10 @@
    Hex design language (imported from the Tools honeycomb).
    Subtle, reusable utilities so KPIs, CTAs, empty states and route
    transitions all read as one system.
-   Gold accent: oklch(0.86 0.14 88) — same hue as the keystone.
+   Gold accent: oklch(0.86 0.14 88) ΓÇö same hue as the keystone.
    ===================================================================== */
 
-/* Hex-clipped badge — wrap a KPI number or icon. */
+/* Hex-clipped badge ΓÇö wrap a KPI number or icon. */
 .hex-frame {
   position: relative;
   display: inline-grid;
@@ -414,7 +414,7 @@
 }
 .hex-frame-lg { padding: 1.5em 1.3em; }
 
-/* Keystone CTA — gold border + warm inner glow on hover.
+/* Keystone CTA ΓÇö gold border + warm inner glow on hover.
    Composes onto any existing button (preserves padding + radius). */
 .btn-keystone {
   position: relative;

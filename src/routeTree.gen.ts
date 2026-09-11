@@ -23,16 +23,23 @@ import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as AppWelcomeRouteImport } from './routes/_app/welcome'
 import { Route as AppTemplatesRouteImport } from './routes/_app/templates'
+import { Route as AppStatsRouteImport } from './routes/_app/stats'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppServersRouteImport } from './routes/_app/servers'
 import { Route as AppRequestsRouteImport } from './routes/_app/requests'
+import { Route as AppOperationsRouteImport } from './routes/_app/operations'
+import { Route as AppLiveRouteImport } from './routes/_app/live'
 import { Route as AppLeadsRouteImport } from './routes/_app/leads'
+import { Route as AppKillfeedRouteImport } from './routes/_app/killfeed'
 import { Route as AppIntegrationsRouteImport } from './routes/_app/integrations'
 import { Route as AppFunnelRouteImport } from './routes/_app/funnel'
+import { Route as AppFactionsRouteImport } from './routes/_app/factions'
+import { Route as AppEconomyRouteImport } from './routes/_app/economy'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppConnectorsRouteImport } from './routes/_app/connectors'
 import { Route as AppCalendarRouteImport } from './routes/_app/calendar'
 import { Route as AppBattlepassRouteImport } from './routes/_app/battlepass'
+import { Route as AppAccountRouteImport } from './routes/_app/account'
 import { Route as AppWorkspacesIndexRouteImport } from './routes/_app/workspaces/index'
 import { Route as AppToolsIndexRouteImport } from './routes/_app/tools/index'
 import { Route as AppCampaignsIndexRouteImport } from './routes/_app/campaigns/index'
@@ -134,6 +141,11 @@ const AppTemplatesRoute = AppTemplatesRouteImport.update({
   path: '/templates',
   getParentRoute: () => AppRoute,
 } as any)
+const AppStatsRoute = AppStatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -149,9 +161,24 @@ const AppRequestsRoute = AppRequestsRouteImport.update({
   path: '/requests',
   getParentRoute: () => AppRoute,
 } as any)
+const AppOperationsRoute = AppOperationsRouteImport.update({
+  id: '/operations',
+  path: '/operations',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLiveRoute = AppLiveRouteImport.update({
+  id: '/live',
+  path: '/live',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppLeadsRoute = AppLeadsRouteImport.update({
   id: '/leads',
   path: '/leads',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppKillfeedRoute = AppKillfeedRouteImport.update({
+  id: '/killfeed',
+  path: '/killfeed',
   getParentRoute: () => AppRoute,
 } as any)
 const AppIntegrationsRoute = AppIntegrationsRouteImport.update({
@@ -162,6 +189,16 @@ const AppIntegrationsRoute = AppIntegrationsRouteImport.update({
 const AppFunnelRoute = AppFunnelRouteImport.update({
   id: '/funnel',
   path: '/funnel',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppFactionsRoute = AppFactionsRouteImport.update({
+  id: '/factions',
+  path: '/factions',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppEconomyRoute = AppEconomyRouteImport.update({
+  id: '/economy',
+  path: '/economy',
   getParentRoute: () => AppRoute,
 } as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
@@ -182,6 +219,11 @@ const AppCalendarRoute = AppCalendarRouteImport.update({
 const AppBattlepassRoute = AppBattlepassRouteImport.update({
   id: '/battlepass',
   path: '/battlepass',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAccountRoute = AppAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => AppRoute,
 } as any)
 const AppWorkspacesIndexRoute = AppWorkspacesIndexRouteImport.update({
@@ -353,16 +395,23 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/thumbnail': typeof ThumbnailRoute
   '/unsubscribe': typeof UnsubscribeRoute
+  '/account': typeof AppAccountRoute
   '/battlepass': typeof AppBattlepassRoute
   '/calendar': typeof AppCalendarRoute
   '/connectors': typeof AppConnectorsRoute
   '/dashboard': typeof AppDashboardRoute
+  '/economy': typeof AppEconomyRoute
+  '/factions': typeof AppFactionsRoute
   '/funnel': typeof AppFunnelRoute
   '/integrations': typeof AppIntegrationsRoute
+  '/killfeed': typeof AppKillfeedRoute
   '/leads': typeof AppLeadsRoute
+  '/live': typeof AppLiveRoute
+  '/operations': typeof AppOperationsRoute
   '/requests': typeof AppRequestsRoute
   '/servers': typeof AppServersRoute
   '/settings': typeof AppSettingsRoute
+  '/stats': typeof AppStatsRoute
   '/templates': typeof AppTemplatesRoute
   '/welcome': typeof AppWelcomeRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -409,16 +458,23 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/thumbnail': typeof ThumbnailRoute
   '/unsubscribe': typeof UnsubscribeRoute
+  '/account': typeof AppAccountRoute
   '/battlepass': typeof AppBattlepassRoute
   '/calendar': typeof AppCalendarRoute
   '/connectors': typeof AppConnectorsRoute
   '/dashboard': typeof AppDashboardRoute
+  '/economy': typeof AppEconomyRoute
+  '/factions': typeof AppFactionsRoute
   '/funnel': typeof AppFunnelRoute
   '/integrations': typeof AppIntegrationsRoute
+  '/killfeed': typeof AppKillfeedRoute
   '/leads': typeof AppLeadsRoute
+  '/live': typeof AppLiveRoute
+  '/operations': typeof AppOperationsRoute
   '/requests': typeof AppRequestsRoute
   '/servers': typeof AppServersRoute
   '/settings': typeof AppSettingsRoute
+  '/stats': typeof AppStatsRoute
   '/templates': typeof AppTemplatesRoute
   '/welcome': typeof AppWelcomeRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -467,16 +523,23 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/thumbnail': typeof ThumbnailRoute
   '/unsubscribe': typeof UnsubscribeRoute
+  '/_app/account': typeof AppAccountRoute
   '/_app/battlepass': typeof AppBattlepassRoute
   '/_app/calendar': typeof AppCalendarRoute
   '/_app/connectors': typeof AppConnectorsRoute
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/economy': typeof AppEconomyRoute
+  '/_app/factions': typeof AppFactionsRoute
   '/_app/funnel': typeof AppFunnelRoute
   '/_app/integrations': typeof AppIntegrationsRoute
+  '/_app/killfeed': typeof AppKillfeedRoute
   '/_app/leads': typeof AppLeadsRoute
+  '/_app/live': typeof AppLiveRoute
+  '/_app/operations': typeof AppOperationsRoute
   '/_app/requests': typeof AppRequestsRoute
   '/_app/servers': typeof AppServersRoute
   '/_app/settings': typeof AppSettingsRoute
+  '/_app/stats': typeof AppStatsRoute
   '/_app/templates': typeof AppTemplatesRoute
   '/_app/welcome': typeof AppWelcomeRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -525,16 +588,23 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/thumbnail'
     | '/unsubscribe'
+    | '/account'
     | '/battlepass'
     | '/calendar'
     | '/connectors'
     | '/dashboard'
+    | '/economy'
+    | '/factions'
     | '/funnel'
     | '/integrations'
+    | '/killfeed'
     | '/leads'
+    | '/live'
+    | '/operations'
     | '/requests'
     | '/servers'
     | '/settings'
+    | '/stats'
     | '/templates'
     | '/welcome'
     | '/email/unsubscribe'
@@ -581,16 +651,23 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/thumbnail'
     | '/unsubscribe'
+    | '/account'
     | '/battlepass'
     | '/calendar'
     | '/connectors'
     | '/dashboard'
+    | '/economy'
+    | '/factions'
     | '/funnel'
     | '/integrations'
+    | '/killfeed'
     | '/leads'
+    | '/live'
+    | '/operations'
     | '/requests'
     | '/servers'
     | '/settings'
+    | '/stats'
     | '/templates'
     | '/welcome'
     | '/email/unsubscribe'
@@ -638,16 +715,23 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/thumbnail'
     | '/unsubscribe'
+    | '/_app/account'
     | '/_app/battlepass'
     | '/_app/calendar'
     | '/_app/connectors'
     | '/_app/dashboard'
+    | '/_app/economy'
+    | '/_app/factions'
     | '/_app/funnel'
     | '/_app/integrations'
+    | '/_app/killfeed'
     | '/_app/leads'
+    | '/_app/live'
+    | '/_app/operations'
     | '/_app/requests'
     | '/_app/servers'
     | '/_app/settings'
+    | '/_app/stats'
     | '/_app/templates'
     | '/_app/welcome'
     | '/email/unsubscribe'
@@ -814,6 +898,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTemplatesRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/stats': {
+      id: '/_app/stats'
+      path: '/stats'
+      fullPath: '/stats'
+      preLoaderRoute: typeof AppStatsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/settings': {
       id: '/_app/settings'
       path: '/settings'
@@ -835,11 +926,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRequestsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/operations': {
+      id: '/_app/operations'
+      path: '/operations'
+      fullPath: '/operations'
+      preLoaderRoute: typeof AppOperationsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/live': {
+      id: '/_app/live'
+      path: '/live'
+      fullPath: '/live'
+      preLoaderRoute: typeof AppLiveRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/leads': {
       id: '/_app/leads'
       path: '/leads'
       fullPath: '/leads'
       preLoaderRoute: typeof AppLeadsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/killfeed': {
+      id: '/_app/killfeed'
+      path: '/killfeed'
+      fullPath: '/killfeed'
+      preLoaderRoute: typeof AppKillfeedRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/integrations': {
@@ -854,6 +966,20 @@ declare module '@tanstack/react-router' {
       path: '/funnel'
       fullPath: '/funnel'
       preLoaderRoute: typeof AppFunnelRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/factions': {
+      id: '/_app/factions'
+      path: '/factions'
+      fullPath: '/factions'
+      preLoaderRoute: typeof AppFactionsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/economy': {
+      id: '/_app/economy'
+      path: '/economy'
+      fullPath: '/economy'
+      preLoaderRoute: typeof AppEconomyRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/dashboard': {
@@ -882,6 +1008,13 @@ declare module '@tanstack/react-router' {
       path: '/battlepass'
       fullPath: '/battlepass'
       preLoaderRoute: typeof AppBattlepassRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/account': {
+      id: '/_app/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AppAccountRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/workspaces/': {
@@ -1105,16 +1238,23 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppAccountRoute: typeof AppAccountRoute
   AppBattlepassRoute: typeof AppBattlepassRoute
   AppCalendarRoute: typeof AppCalendarRoute
   AppConnectorsRoute: typeof AppConnectorsRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppEconomyRoute: typeof AppEconomyRoute
+  AppFactionsRoute: typeof AppFactionsRoute
   AppFunnelRoute: typeof AppFunnelRoute
   AppIntegrationsRoute: typeof AppIntegrationsRoute
+  AppKillfeedRoute: typeof AppKillfeedRoute
   AppLeadsRoute: typeof AppLeadsRoute
+  AppLiveRoute: typeof AppLiveRoute
+  AppOperationsRoute: typeof AppOperationsRoute
   AppRequestsRoute: typeof AppRequestsRoute
   AppServersRoute: typeof AppServersRoute
   AppSettingsRoute: typeof AppSettingsRoute
+  AppStatsRoute: typeof AppStatsRoute
   AppTemplatesRoute: typeof AppTemplatesRoute
   AppWelcomeRoute: typeof AppWelcomeRoute
   AppCampaignsIdRoute: typeof AppCampaignsIdRoute
@@ -1140,16 +1280,23 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAccountRoute: AppAccountRoute,
   AppBattlepassRoute: AppBattlepassRoute,
   AppCalendarRoute: AppCalendarRoute,
   AppConnectorsRoute: AppConnectorsRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppEconomyRoute: AppEconomyRoute,
+  AppFactionsRoute: AppFactionsRoute,
   AppFunnelRoute: AppFunnelRoute,
   AppIntegrationsRoute: AppIntegrationsRoute,
+  AppKillfeedRoute: AppKillfeedRoute,
   AppLeadsRoute: AppLeadsRoute,
+  AppLiveRoute: AppLiveRoute,
+  AppOperationsRoute: AppOperationsRoute,
   AppRequestsRoute: AppRequestsRoute,
   AppServersRoute: AppServersRoute,
   AppSettingsRoute: AppSettingsRoute,
+  AppStatsRoute: AppStatsRoute,
   AppTemplatesRoute: AppTemplatesRoute,
   AppWelcomeRoute: AppWelcomeRoute,
   AppCampaignsIdRoute: AppCampaignsIdRoute,
