@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useCallback, useState, type ReactNode } from "react";
+import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { z } from "zod";
 import {
   IconArrowRight,
@@ -13,11 +13,13 @@ import {
   IconScroll,
   IconSpark,
   IconUtm,
+  IconSearch,
 } from "@/components/ui-custom/CustomIcon";
 import { PageHexBadge } from "@/components/app/PageHexBadge";
 import { FocusedToolPanel } from "@/components/tools/FocusedToolPanel";
 import { FadeInUp } from "@/components/motion/WordStagger";
 import { BRAND } from "@/lib/brand";
+import { toast } from "sonner";
 
 
 import {
@@ -98,12 +100,56 @@ const SERVICE_GROUPS: { name: string; description: string; hue: number; icon: Re
   },
 ];
 
-const ITEM_CATALOG = [
-  { name: "Field Medkit", type: "Medical", price: "2,500 credits", detail: "Stabilize after a rough run." },
-  { name: "Recon Beacon", type: "Intel", price: "4,200 credits", detail: "Mark a position for your squad." },
-  { name: "Armor Plate", type: "Protection", price: "3,100 credits", detail: "Extra cover for the next push." },
-  { name: "Supply Crate", type: "Supplies", price: "7,500 credits", detail: "A packed drop for your faction." },
-] as const;
+type ItemCategory = "Handgun" | "Rifle" | "Sniper Rifle" | "SMG" | "Shotgun" | "Ammo" | "Medical" | "Food" | "Clothing" | "Tools" | "Vehicle" | "Survival";
+type ShopItem = { id: string; name: string; category: ItemCategory; price: number; detail: string; image: string };
+
+const wikiImage = (file: string) => `https://dayz.fandom.com/wiki/Special:FilePath/${encodeURIComponent(file)}`;
+const item = (id: string, name: string, category: ItemCategory, price: number, detail: string, file: string): ShopItem => ({ id, name, category, price, detail, image: wikiImage(file) });
+
+const ITEM_CATALOG: ShopItem[] = [
+  item("glock19", "Glock 19", "Handgun", 1800, "Compact 9mm sidearm for close quarters.", "Glock 19.png"),
+  item("deagle", "Desert Eagle", "Handgun", 4200, "Heavy pistol with serious stopping power.", "Deagle.png"),
+  item("fnx45", "FNX45", "Handgun", 3600, "Reliable .45 sidearm with a strong report.", "FNX45.png"),
+  item("mk-ii", "MK II", "Handgun", 2400, "Quiet .22 pistol for discreet work.", "MK II.png"),
+  item("m4a1", "M4-A1", "Rifle", 12500, "Modular assault rifle for faction operations.", "M4-A1.png"),
+  item("akm", "AKM", "Rifle", 10800, "Hard-hitting 7.62 rifle built for the wasteland.", "AKM.png"),
+  item("ak74", "AK-74", "Rifle", 9400, "Controllable 5.45 assault rifle.", "AK-74.png"),
+  item("aug", "AUG A1", "Rifle", 11400, "Bullpup rifle with a fast handling profile.", "AUG A1.png"),
+  item("lar", "FAL", "Rifle", 15200, "Battle rifle for players who want reach and force.", "FAL.png"),
+  item("mosin", "Mosin 9130", "Sniper Rifle", 8500, "Classic bolt-action rifle with long-range reach.", "Mosin 9130.png"),
+  item("svd", "SVD", "Sniper Rifle", 17800, "Semi-automatic marksman rifle for overwatch.", "SVD.png"),
+  item("vss", "VSS", "Sniper Rifle", 16400, "Suppressed marksman platform for covert teams.", "VSS.png"),
+  item("win70", "Winchester 70", "Sniper Rifle", 9800, "Precise hunting rifle with a clean sight picture.", "Winchester 70.png"),
+  item("mp5", "USG-45", "SMG", 7200, "Compact submachine gun for urban fights.", "USG-45.png"),
+  item("scorpion", "Scorpion EVO 3", "SMG", 7600, "Fast-firing SMG with a large magazine.", "Scorpion EVO 3.png"),
+  item("mp133", "BK-133", "Shotgun", 4600, "Pump shotgun that keeps doorways honest.", "BK-133.png"),
+  item("doublebarrel", "BK-43", "Shotgun", 3900, "Break-action double barrel for brutal close work.", "BK-43.png"),
+  item("ij70", "IJ-70", "Handgun", 1300, "Common sidearm and dependable last resort.", "IJ-70.png"),
+  item("ammo-556", "5.56x45mm Box", "Ammo", 900, "Box of rifle ammunition.", "5.56x45mm.png"),
+  item("ammo-762", "7.62x39mm Box", "Ammo", 1100, "Box of intermediate rifle ammunition.", "7.62x39mm.png"),
+  item("ammo-308", ".308 Winchester Box", "Ammo", 1400, "Box of full-power marksman rounds.", ".308 Winchester.png"),
+  item("ammo-9mm", "9x19mm Box", "Ammo", 700, "Box of compact pistol and SMG rounds.", "9x19mm.png"),
+  item("bandage", "Bandage", "Medical", 350, "Stop bleeding before the next push.", "Bandage.png"),
+  item("saline", "Saline Bag", "Medical", 1200, "Restore blood volume after treatment.", "Saline Bag.png"),
+  item("morphine", "Morphine Auto-Injector", "Medical", 950, "Treat a broken leg and keep moving.", "Morphine Auto-Injector.png"),
+  item("charcoal", "Charcoal Tablets", "Medical", 500, "Clean up a bad stomach situation.", "Charcoal Tabs.png"),
+  item("canned", "Canned Bacon", "Food", 260, "Long-life food for a long night.", "Canned Bacon.png"),
+  item("water", "Canteen", "Food", 450, "Carry clean water between safehouses.", "Canteen.png"),
+  item("rice", "Rice", "Food", 380, "A reliable dry food staple.", "Rice.png"),
+  item("plate", "Plate Carrier", "Clothing", 6800, "Extra protection for high-risk raids.", "Plate Carrier.png"),
+  item("ghillie", "Ghillie Suit", "Clothing", 5900, "Blend into the tree line.", "Ghillie Suit.png"),
+  item("helmet", "Assault Helmet", "Clothing", 3200, "Protect your head during contact.", "Assault Helmet.png"),
+  item("knife", "Combat Knife", "Tools", 900, "A field blade for work and defense.", "Combat Knife.png"),
+  item("hatchet", "Hatchet", "Tools", 1250, "Harvest wood and open difficult crates.", "Hatchet.png"),
+  item("lockpick", "Lockpick", "Tools", 2100, "A quiet answer to locked storage.", "Lockpick.png"),
+  item("repair", "Weapon Cleaning Kit", "Tools", 1800, "Keep your weapon reliable in the field.", "Weapon Cleaning Kit.png"),
+  item("bicycle", "Bicycle", "Vehicle", 6200, "Quiet transport for supply runs.", "Bicycle.png"),
+  item("tent", "Medium Tent", "Survival", 2800, "Create a temporary faction cache.", "Medium Tent.png"),
+  item("cooking", "Cooking Pot", "Survival", 800, "Turn raw finds into a hot meal.", "Cooking Pot.png"),
+  item("radio", "Field Transceiver", "Survival", 1700, "Stay connected when the grid goes dark.", "Field Transceiver.png"),
+];
+
+const ITEM_FILTERS = ["All", "Name A-Z", "Handgun", "Rifle", "Sniper Rifle", "SMG", "Shotgun", "Ammo", "Medical", "Food", "Clothing", "Tools", "Vehicle", "Survival"] as const;
 
 export const Route = createFileRoute("/_app/tools/")({
   component: ToolsHub,
@@ -494,29 +540,88 @@ function ServiceDirectory({ onOpen }: { onOpen: (focus: string) => void }) {
 }
 
 function ItemShop() {
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<(typeof ITEM_FILTERS)[number]>("All");
+  const [selected, setSelected] = useState<ShopItem | null>(null);
+  const [quantity, setQuantity] = useState(1);
+  const [credits, setCredits] = useState(50_000);
+  const [owned, setOwned] = useState<string[]>([]);
+  const filtered = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    return ITEM_CATALOG
+      .filter((entry) => filter === "All" || filter === "Name A-Z" || entry.category === filter)
+      .filter((entry) => !normalized || `${entry.name} ${entry.category} ${entry.detail}`.toLowerCase().includes(normalized))
+      .sort((a, b) => filter === "Name A-Z" ? a.name.localeCompare(b.name) : 0);
+  }, [filter, query]);
+
+  const choose = (entry: ShopItem) => {
+    setSelected(entry);
+    setQuantity(1);
+  };
+
+  const purchase = () => {
+    if (!selected) return;
+    const total = selected.price * quantity;
+    if (credits < total) {
+      toast.error("Not enough credits", { description: `You need ${total.toLocaleString()} credits.` });
+      return;
+    }
+    setCredits((value) => value - total);
+    setOwned((current) => [...new Set([...current, selected.id])]);
+    toast.success(`${selected.name} purchased`, { description: `${quantity} item${quantity === 1 ? "" : "s"} added to your locker.` });
+  };
+
   return (
     <section className="shop-directory-wrap" aria-label="Item Shop catalog">
       <div className="shop-directory-shell">
-        <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
-          {ITEM_CATALOG.map((item) => (
-            <article key={item.name} className="shop-card min-h-0 flex-col">
-              <div className="shop-card-art h-24 w-full shrink-0">
-                <IconScroll size={28} className="text-primary" />
+            <div className="border-b border-white/10 p-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h2 className="shop-medieval-title text-2xl text-primary">Item catalogue</h2>
+                  <p className="mt-1 text-xs text-muted-foreground">DayZ field gear, weapons, ammunition, and survival stock.</p>
+                </div>
+                <div className="text-right text-xs text-muted-foreground"><span className="text-primary">{credits.toLocaleString()}</span> credits · {owned.length} owned</div>
               </div>
-              <div className="shop-card-content">
-                <span className="shop-card-title shop-medieval-title">{item.name}</span>
-                <span className="shop-card-meta">{item.detail}</span>
-                <div className="mt-3 flex items-center justify-between gap-2">
-                  <span className="shop-card-pill">{item.type}</span>
-                  <span className="text-xs font-semibold text-primary">{item.price}</span>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <label className="flex min-w-[240px] flex-1 items-center gap-2 rounded-lg border border-white/15 bg-black/60 px-3">
+                  <IconSearch size={15} className="text-primary" />
+                  <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search every item..." className="w-full bg-transparent py-2.5 text-sm text-foreground outline-none placeholder:text-muted-foreground" />
+                </label>
+                <select value={filter} onChange={(event) => setFilter(event.target.value as (typeof ITEM_FILTERS)[number])} className="rounded-lg border border-white/15 bg-black px-3 py-2 text-sm text-foreground outline-none">
+                  {ITEM_FILTERS.map((option) => <option key={option} value={option}>{option}</option>)}
+                </select>
+              </div>
+            </div>
+            <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
+              {filtered.map((entry) => (
+                <button key={entry.id} type="button" onClick={() => choose(entry)} className={`shop-card min-h-0 flex-col text-left ${selected?.id === entry.id ? "border-primary" : ""}`}>
+                  <div className="shop-card-art h-32 w-full shrink-0 bg-black">
+                    <img src={entry.image} alt={entry.name} loading="lazy" onError={(event) => { event.currentTarget.style.display = "none"; }} />
+                    <IconScroll size={26} className="absolute text-primary" />
+                  </div>
+                  <div className="shop-card-content">
+                    <span className="shop-card-title shop-medieval-title">{entry.name}</span>
+                    <span className="shop-card-meta">{entry.detail}</span>
+                    <div className="mt-3 flex items-center justify-between gap-2"><span className="shop-card-pill">{entry.category}</span><span className="text-xs font-semibold text-primary">{entry.price.toLocaleString()}</span></div>
+                    {owned.includes(entry.id) && <span className="mt-2 text-[10px] uppercase tracking-wider text-emerald-300">Owned</span>}
+                  </div>
+                </button>
+              ))}
+            </div>
+            {filtered.length === 0 && <p className="p-10 text-center text-sm text-muted-foreground">No items match that search.</p>}
+            {selected && (
+              <div className="border-t border-primary/25 bg-black/80 p-5">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div><div className="text-[10px] uppercase tracking-[0.2em] text-primary">Purchase review</div><h3 className="shop-medieval-title mt-1 text-2xl">{selected.name}</h3><p className="mt-1 max-w-xl text-sm text-muted-foreground">{selected.detail}</p></div>
+                  <button type="button" onClick={() => setSelected(null)} className="text-xs text-muted-foreground hover:text-foreground">Close</button>
+                </div>
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <label className="text-xs uppercase tracking-wider text-muted-foreground">Quantity <input type="number" min={1} max={10} value={quantity} onChange={(event) => setQuantity(Math.min(10, Math.max(1, Number(event.target.value) || 1)))} className="ml-2 w-16 rounded border border-white/15 bg-black px-2 py-1.5 text-center text-foreground" /></label>
+                  <span className="text-sm text-muted-foreground">Total <strong className="text-primary">{(selected.price * quantity).toLocaleString()} credits</strong></span>
+                  <button type="button" onClick={purchase} className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:brightness-110">Confirm purchase</button>
                 </div>
               </div>
-              <button type="button" className="mt-4 rounded-lg border border-primary/40 px-3 py-2 text-xs uppercase tracking-[0.16em] text-primary transition hover:bg-primary hover:text-primary-foreground">
-                Purchase
-              </button>
-            </article>
-          ))}
-        </div>
+            )}
       </div>
     </section>
   );
