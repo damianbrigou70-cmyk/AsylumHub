@@ -254,6 +254,7 @@ function AppShell() {
   // don't kick off duplicate profile fetches and re-render the shell.
   useEffect(() => {
     if (!user) return;
+    if (user.id === "demo-user") return;
     let cancelled = false;
     (async () => {
       const onboardedAt = await getCachedOnboardedAt(user.id);
