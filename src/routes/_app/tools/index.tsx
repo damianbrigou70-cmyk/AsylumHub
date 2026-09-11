@@ -75,7 +75,7 @@ const SERVICE_GROUPS: { name: string; description: string; hue: number; icon: Re
     items: [
       { label: "NPC Shop", focus: "campaign-import", icon: <IconImport size={16} /> },
       { label: "Custom Vehicles", focus: "campaign-events", icon: <IconSpark size={16} /> },
-      { label: "Item Shop", focus: "campaign-import", icon: <IconScroll size={16} /> },
+            { label: "Item Shop", focus: "campaign-import", icon: <IconScroll size={16} /> },
     ],
   },
   {
@@ -98,6 +98,13 @@ const SERVICE_GROUPS: { name: string; description: string; hue: number; icon: Re
   },
 ];
 
+const ITEM_CATALOG = [
+  { name: "Field Medkit", type: "Medical", price: "2,500 credits", detail: "Stabilize after a rough run." },
+  { name: "Recon Beacon", type: "Intel", price: "4,200 credits", detail: "Mark a position for your squad." },
+  { name: "Armor Plate", type: "Protection", price: "3,100 credits", detail: "Extra cover for the next push." },
+  { name: "Supply Crate", type: "Supplies", price: "7,500 credits", detail: "A packed drop for your faction." },
+] as const;
+
 export const Route = createFileRoute("/_app/tools/")({
   component: ToolsHub,
   validateSearch: searchSchema,
@@ -116,6 +123,7 @@ export const Route = createFileRoute("/_app/tools/")({
 function ToolsHub() {
   const { focus, workspace } = Route.useSearch();
   const navigate = useNavigate();
+  const [shopTab, setShopTab] = useState<"server" | "items">("server");
   const tool = getFocusedTool(focus);
   const focusedPrimaryId = tool?.primaryId ?? null;
   // Reverse the satellite→slug map to find which satellite is active.
@@ -304,6 +312,23 @@ function ToolsHub() {
         )}
         {!tool && <hr className="spectrum-divider mt-8" />}
 
+        {!tool && (
+          <div className="mx-auto mt-5 flex w-fit items-center gap-1 rounded-full border border-white/15 bg-black/70 p-1" role="tablist" aria-label="Shop sections">
+            {([ ["server", "Server Shop"], ["items", "Item Shop"] ] as const).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={shopTab === id}
+                onClick={() => setShopTab(id)}
+                className={`rounded-full px-5 py-2 text-xs uppercase tracking-[0.18em] transition ${shopTab === id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+
         {tool && (
           <FadeInUp delay={0.05} className="mt-2">
             <div className="relative flex flex-wrap items-center gap-3 sm:gap-4 pt-3">
@@ -375,9 +400,13 @@ function ToolsHub() {
       <div className={tool ? "relative flex min-h-[calc(100vh-13rem)] flex-1 flex-col" : "relative"}>
         {!tool && (
           <>
-            <ServiceDirectory
-              onOpen={(focus) => navigate({ to: "/tools", search: { focus, workspace } })}
-            />
+            {shopTab === "server" ? (
+              <ServiceDirectory
+                onOpen={(focus) => navigate({ to: "/tools", search: { focus, workspace } })}
+              />
+            ) : (
+              <ItemShop />
+            )}
           </>
         )}
 
@@ -457,6 +486,35 @@ function ServiceDirectory({ onOpen }: { onOpen: (focus: string) => void }) {
               </span>
               <IconArrowRight size={14} className="ml-auto mt-auto text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground" />
             </button>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ItemShop() {
+  return (
+    <section className="shop-directory-wrap" aria-label="Item Shop catalog">
+      <div className="shop-directory-shell">
+        <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
+          {ITEM_CATALOG.map((item) => (
+            <article key={item.name} className="shop-card min-h-0 flex-col">
+              <div className="shop-card-art h-24 w-full shrink-0">
+                <IconScroll size={28} className="text-primary" />
+              </div>
+              <div className="shop-card-content">
+                <span className="shop-card-title shop-medieval-title">{item.name}</span>
+                <span className="shop-card-meta">{item.detail}</span>
+                <div className="mt-3 flex items-center justify-between gap-2">
+                  <span className="shop-card-pill">{item.type}</span>
+                  <span className="text-xs font-semibold text-primary">{item.price}</span>
+                </div>
+              </div>
+              <button type="button" className="mt-4 rounded-lg border border-primary/40 px-3 py-2 text-xs uppercase tracking-[0.16em] text-primary transition hover:bg-primary hover:text-primary-foreground">
+                Purchase
+              </button>
+            </article>
           ))}
         </div>
       </div>
