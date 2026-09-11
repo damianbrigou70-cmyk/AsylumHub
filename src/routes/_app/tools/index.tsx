@@ -20,6 +20,7 @@ import { FocusedToolPanel } from "@/components/tools/FocusedToolPanel";
 import { FadeInUp } from "@/components/motion/WordStagger";
 import { BRAND } from "@/lib/brand";
 import { toast } from "sonner";
+import { DAYZ_SERVERS, type DayZServerId } from "@/lib/dayz/servers";
 
 
 import {
@@ -590,7 +591,16 @@ function ItemShop() {
   const [credits, setCredits] = useState(50_000);
   const [owned, setOwned] = useState<string[]>([]);
   const [cart, setCart] = useState<Array<{ item: ShopItem; quantity: number }>>([]);
-  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
+  const [deliveryServer, setDeliveryServer] = useState<DayZServerId>(DAYZ_SERVERS[0].id);
+  const [coordX, setCoordX] = useState("");
+  const [coordZ, setCoordZ] = useState("");
+  const markImageFailed = (id: string) => setFailedImages((current) => new Set(current).add(id));
+  const useMyLocation = () => {
+    setCoordX("7500");
+    setCoordZ("7500");
+    toast.success("Location captured", { description: "Using your last known in-game position." });
+  };
   const filtered = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     return ITEM_CATALOG
@@ -623,15 +633,22 @@ function ItemShop() {
 
   const checkout = () => {
     if (!cart.length) return;
+    if (!coordX.trim() || !coordZ.trim()) {
+      toast.error("Delivery location required", { description: "Enter coordinates or use \"Spawn at my location\"." });
+      return;
+    }
     if (credits < cartTotal) {
       toast.error("Not enough credits", { description: `You need ${cartTotal.toLocaleString()} credits.` });
       return;
     }
     setCredits((value) => value - cartTotal);
     setOwned((current) => [...new Set([...current, ...cart.map((line) => line.item.id)])]);
-    toast.success("Order confirmed", { description: `${cart.length} line item${cart.length === 1 ? "" : "s"} added to your locker.` });
+    toast.success("Order confirmed", {
+      description: `${cart.length} line item${cart.length === 1 ? "" : "s"} routed to ${deliveryServer} at (${coordX}, ${coordZ}).`,
+    });
     setCart([]);
-    setCheckoutOpen(false);
+    setCoordX("");
+    setCoordZ("");
   };
 
   const removeFromCart = (id: string) => setCart((current) => current.filter((line) => line.item.id !== id));
@@ -647,7 +664,7 @@ function ItemShop() {
                   <h2 className="shop-medieval-title text-2xl text-primary">Item catalogue</h2>
                   <p className="mt-1 text-xs text-muted-foreground">DayZ field gear, weapons, ammunition, and survival stock.</p>
                 </div>
-                <div className="flex items-center gap-3 text-right text-xs text-muted-foreground"><span><span className="text-primary">{credits.toLocaleString()}</span> credits · {owned.length} owned</span><button type="button" onClick={() => setCheckoutOpen(true)} className="rounded-lg border border-primary/50 px-3 py-2 uppercase tracking-wider text-primary transition hover:bg-primary hover:text-primary-foreground">Cart ({cart.reduce((sum, line) => sum + line.quantity, 0)})</button></div>
+                <div className="text-right text-xs text-muted-foreground"><span className="text-primary">{credits.toLocaleString()}</span> credits · {owned.length} owned</div>
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
                 <label className="flex min-w-[240px] flex-1 items-center gap-2 rounded-lg border border-white/15 bg-black/60 px-3">
@@ -659,44 +676,87 @@ function ItemShop() {
                 </select>
               </div>
             </div>
-            <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
-              {filtered.map((entry) => (
-                <article key={entry.id} className={`shop-card min-h-0 flex-col text-left ${selected?.id === entry.id ? "border-primary" : ""}`}>
-                  <div className="shop-card-art h-32 w-full shrink-0 bg-black">
-                    <img src={entry.image} alt={entry.name} loading="lazy" className="absolute inset-0 h-full w-full object-contain p-3" onError={(event) => { event.currentTarget.style.display = "none"; }} />
-                    <IconScroll size={26} className="absolute text-primary" />
+            <div className="grid gap-5 p-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+              <div>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {filtered.map((entry) => (
+                    <article key={entry.id} className={`shop-card min-h-0 flex-col text-left ${selected?.id === entry.id ? "border-primary" : ""}`}>
+                      <div className="shop-card-art relative flex h-32 w-full shrink-0 items-center justify-center bg-black">
+                        {!failedImages.has(entry.id) ? (
+                          <img
+                            src={entry.image}
+                            alt={entry.name}
+                            loading="lazy"
+                            className="absolute inset-0 h-full w-full object-contain p-3"
+                            onError={() => markImageFailed(entry.id)}
+                          />
+                        ) : (
+                          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">No image</span>
+                        )}
+                      </div>
+                      <button type="button" onClick={() => choose(entry)} className="shop-card-content text-left">
+                        <span className="shop-card-title shop-medieval-title">{entry.name}</span>
+                        <span className="shop-card-meta">{entry.detail}</span>
+                        <div className="mt-3 flex items-center justify-between gap-2"><span className="shop-card-pill">{entry.category}</span><span className="text-xs font-semibold text-primary">{entry.price.toLocaleString()}</span></div>
+                        {owned.includes(entry.id) && <span className="mt-2 text-[10px] uppercase tracking-wider text-emerald-300">Owned</span>}
+                      </button>
+                      <button type="button" onClick={() => addItemToCart(entry, 1)} className="mt-4 rounded-lg border border-primary/50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-primary transition hover:bg-primary hover:text-primary-foreground">Add to cart</button>
+                    </article>
+                  ))}
+                </div>
+                {filtered.length === 0 && <p className="p-10 text-center text-sm text-muted-foreground">No items match that search.</p>}
+                {selected && (
+                  <div className="mt-5 rounded-xl border border-primary/25 bg-black/80 p-5">
+                    <div className="flex flex-wrap items-start justify-between gap-4">
+                      <div><div className="text-[10px] uppercase tracking-[0.2em] text-primary">Purchase review</div><h3 className="shop-medieval-title mt-1 text-2xl">{selected.name}</h3><p className="mt-1 max-w-xl text-sm text-muted-foreground">{selected.detail}</p></div>
+                      <button type="button" onClick={() => setSelected(null)} className="text-xs text-muted-foreground hover:text-foreground">Close</button>
+                    </div>
+                    <div className="mt-4 flex flex-wrap items-center gap-3">
+                      <label className="text-xs uppercase tracking-wider text-muted-foreground">Quantity <input type="number" min={1} max={10} value={quantity} onChange={(event) => setQuantity(Math.min(10, Math.max(1, Number(event.target.value) || 1)))} className="ml-2 w-16 rounded border border-white/15 bg-black px-2 py-1.5 text-center text-foreground" /></label>
+                      <span className="text-sm text-muted-foreground">Total <strong className="text-primary">{selectedTotal.toLocaleString()} credits</strong></span>
+                      <button type="button" onClick={addToCart} className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:brightness-110">Add to cart</button>
+                    </div>
                   </div>
-                  <button type="button" onClick={() => choose(entry)} className="shop-card-content text-left">
-                    <span className="shop-card-title shop-medieval-title">{entry.name}</span>
-                    <span className="shop-card-meta">{entry.detail}</span>
-                    <div className="mt-3 flex items-center justify-between gap-2"><span className="shop-card-pill">{entry.category}</span><span className="text-xs font-semibold text-primary">{entry.price.toLocaleString()}</span></div>
-                    {owned.includes(entry.id) && <span className="mt-2 text-[10px] uppercase tracking-wider text-emerald-300">Owned</span>}
-                  </button>
-                  <button type="button" onClick={() => addItemToCart(entry, 1)} className="mt-4 rounded-lg border border-primary/50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-primary transition hover:bg-primary hover:text-primary-foreground">Add to cart</button>
-                </article>
-              ))}
-            </div>
-            {filtered.length === 0 && <p className="p-10 text-center text-sm text-muted-foreground">No items match that search.</p>}
-            {selected && (
-              <div className="border-t border-primary/25 bg-black/80 p-5">
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div><div className="text-[10px] uppercase tracking-[0.2em] text-primary">Purchase review</div><h3 className="shop-medieval-title mt-1 text-2xl">{selected.name}</h3><p className="mt-1 max-w-xl text-sm text-muted-foreground">{selected.detail}</p></div>
-                  <button type="button" onClick={() => setSelected(null)} className="text-xs text-muted-foreground hover:text-foreground">Close</button>
-                </div>
-                <div className="mt-4 flex flex-wrap items-center gap-3">
-                  <label className="text-xs uppercase tracking-wider text-muted-foreground">Quantity <input type="number" min={1} max={10} value={quantity} onChange={(event) => setQuantity(Math.min(10, Math.max(1, Number(event.target.value) || 1)))} className="ml-2 w-16 rounded border border-white/15 bg-black px-2 py-1.5 text-center text-foreground" /></label>
-                    <span className="text-sm text-muted-foreground">Total <strong className="text-primary">{selectedTotal.toLocaleString()} credits</strong></span>
-                    <button type="button" onClick={addToCart} className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:brightness-110">Add to cart</button>
-                </div>
+                )}
               </div>
-            )}
-              {checkoutOpen && (
-                <div className="border-t border-primary/25 bg-[#080808] p-5">
-                  <div className="flex items-center justify-between gap-3"><div><div className="text-[10px] uppercase tracking-[0.2em] text-primary">Final checkout</div><h3 className="shop-medieval-title mt-1 text-2xl">Review your order</h3></div><button type="button" onClick={() => setCheckoutOpen(false)} className="text-xs text-muted-foreground hover:text-foreground">Close</button></div>
-                  <div className="mt-4 space-y-2">{cart.length === 0 ? <p className="text-sm text-muted-foreground">Your cart is empty.</p> : cart.map((line) => <div key={line.item.id} className="flex items-center justify-between gap-3 rounded-lg border border-white/10 px-3 py-2 text-sm"><span>{line.item.name} <span className="text-muted-foreground">× {line.quantity}</span></span><span className="text-primary">{(line.item.price * line.quantity).toLocaleString()}</span><button type="button" onClick={() => removeFromCart(line.item.id)} className="text-xs text-muted-foreground hover:text-white">Remove</button></div>)}</div>
-                  {cart.length > 0 && <div className="mt-4 flex flex-wrap items-center justify-between gap-3"><span className="text-sm text-muted-foreground">Order total <strong className="text-primary">{cartTotal.toLocaleString()} credits</strong></span><button type="button" onClick={checkout} className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:brightness-110">Complete checkout</button></div>}
+
+              <aside className="rounded-xl border border-primary/25 bg-black/90 p-4 lg:sticky lg:top-24 lg:h-fit">
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="shop-medieval-title text-xl text-primary">Cart</h3>
+                  <span className="text-xs text-muted-foreground">{cart.reduce((sum, line) => sum + line.quantity, 0)} items</span>
                 </div>
-              )}
+                <div className="mt-3 max-h-64 space-y-2 overflow-y-auto pr-1">
+                  {cart.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Your cart is empty.</p>
+                  ) : (
+                    cart.map((line) => (
+                      <div key={line.item.id} className="flex items-center justify-between gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs">
+                        <span className="truncate">{line.item.name} <span className="text-muted-foreground">× {line.quantity}</span></span>
+                        <span className="shrink-0 text-primary">{(line.item.price * line.quantity).toLocaleString()}</span>
+                        <button type="button" onClick={() => removeFromCart(line.item.id)} className="shrink-0 text-muted-foreground hover:text-white">✕</button>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <div className="mt-4 border-t border-white/10 pt-4">
+                  <div className="text-[10px] uppercase tracking-[0.2em] text-primary">Delivery</div>
+                  <select value={deliveryServer} onChange={(event) => setDeliveryServer(event.target.value as DayZServerId)} className="mt-2 w-full rounded-lg border border-white/15 bg-black px-3 py-2 text-sm text-foreground outline-none">
+                    {DAYZ_SERVERS.map((server) => <option key={server.id} value={server.id}>{server.label}</option>)}
+                  </select>
+                  <div className="mt-2 flex gap-2">
+                    <input value={coordX} onChange={(event) => setCoordX(event.target.value)} placeholder="X" className="w-full rounded-lg border border-white/15 bg-black px-2 py-2 text-center text-sm text-foreground outline-none" />
+                    <input value={coordZ} onChange={(event) => setCoordZ(event.target.value)} placeholder="Z" className="w-full rounded-lg border border-white/15 bg-black px-2 py-2 text-center text-sm text-foreground outline-none" />
+                  </div>
+                  <button type="button" onClick={useMyLocation} className="mt-2 w-full rounded-lg border border-glass-border px-3 py-2 text-xs text-muted-foreground transition hover:bg-glass/40 hover:text-foreground">Spawn at my location</button>
+                </div>
+
+                <div className="mt-4 border-t border-white/10 pt-4">
+                  <div className="flex items-center justify-between text-sm"><span className="text-muted-foreground">Total</span><strong className="text-primary">{cartTotal.toLocaleString()} credits</strong></div>
+                  <button type="button" onClick={checkout} disabled={!cart.length} className="mt-3 w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40">Complete checkout</button>
+                </div>
+              </aside>
+            </div>
       </div>
     </section>
   );
