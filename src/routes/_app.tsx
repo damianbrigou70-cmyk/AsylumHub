@@ -55,6 +55,7 @@ const PRIMARY_NAV = [
   { to: "/campaigns", label: "Operations", Icon: IconWorkspace },
   { to: "/leads", label: "Online", Icon: IconAudience },
   { to: "/tools", label: "Server shop", Icon: IconCampaign },
+  { to: "/war-room", label: "War Room", Icon: IconWorkspace },
   { to: "/battlepass", label: "Battlepass", Icon: IconCalendar },
   { to: "/requests", label: "Support tickets", Icon: IconClock },
   { to: "/templates", label: "Locker", Icon: IconTemplate },
