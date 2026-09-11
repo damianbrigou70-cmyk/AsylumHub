@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useMemo, useState, type ReactNode } from "react";
+import { motion } from "framer-motion";
 import { z } from "zod";
 import {
   IconArrowRight,
@@ -319,7 +320,8 @@ function ToolsHub() {
         .shop-hero-stat span { color: rgba(245, 228, 197, 0.6); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; }
         .shop-hero-stat strong { color: #f4d391; font-size: 1.8rem; font-family: "MedievalSharp", Georgia, serif; }
         .shop-hero-callout { display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
-        .shop-hero-pill { border: 1px solid rgba(235, 172, 87, 0.28); border-radius: 999px; padding: 7px 12px; background: rgba(88, 46, 24, 0.36); color: #f3d28f; letter-spacing: 0.15em; font-size: 10px; text-transform: uppercase; }
+        .shop-hero-pill { position: relative; overflow: hidden; border: 1px solid rgba(235, 172, 87, 0.28); border-radius: 999px; padding: 7px 12px; background: rgba(88, 46, 24, 0.36); color: #f3d28f; letter-spacing: 0.15em; font-size: 10px; text-transform: uppercase; }
+        .shop-hero-pill::after { content: ""; position: absolute; inset-y: 0; left: 0; width: 40%; background: rgba(255,255,255,0.35); filter: blur(4px); animation: servershop-shine 3.4s ease-in-out infinite; }
         .shop-directory-wrap { position: relative; z-index: 1; width: min(1380px, calc(100% - 32px)); margin: 26px auto 0; }
         .shop-directory-shell { border: 1px solid rgba(231, 170, 86, 0.22); border-radius: 28px; background: rgba(16, 11, 9, 0.75); box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 188, 112, 0.04); overflow: hidden; }
         .shop-directory-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; padding: 18px; }
@@ -360,6 +362,8 @@ function ToolsHub() {
         .server-shop-root .shop-card-title { color: #f5f5f5; }
         .server-shop-root .shop-card-meta { color: rgba(216, 216, 216, 0.62); }
         .server-shop-root .shop-card-pill { border-color: rgba(255, 255, 255, 0.22); background: rgba(255, 255, 255, 0.06); color: #eeeeee; }
+        @keyframes servershop-scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
+        @keyframes servershop-shine { 0% { transform: translateX(-140%) skewX(-20deg); } 100% { transform: translateX(240%) skewX(-20deg); } }
       `}</style>
       <div className="shop-atmosphere" aria-hidden>
         <div className="shop-desert" />
@@ -379,6 +383,22 @@ function ToolsHub() {
             }}
           />
         ))}
+        {!tool && (
+          <>
+            <div
+              className="pointer-events-none absolute inset-x-0 top-0 h-40 opacity-[0.08]"
+              style={{
+                background: "linear-gradient(180deg, transparent, rgba(255,200,120,0.9), transparent)",
+                animation: "servershop-scan 7s linear infinite",
+              }}
+            />
+            <div className="pointer-events-none absolute inset-6 sm:inset-10">
+              {(["top-4 left-4 border-l border-t", "top-4 right-4 border-r border-t"] as const).map((pos) => (
+                <span key={pos} className={`absolute size-8 sm:size-12 border-primary/30 ${pos}`} />
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       <header className="shop-masthead relative z-10">
@@ -389,14 +409,38 @@ function ToolsHub() {
         <div className="mt-3 flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
           {!tool && (
             <div className="shop-badge-row">
-              <PageHexBadge hue={88} size={26} icon={<IconBolt size={22} />} aria-label="Server shop" />
+              <div className="relative flex size-[42px] items-center justify-center">
+                <motion.span
+                  className="absolute inset-0 rounded-full border border-primary/30 border-t-primary"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 7, repeat: Infinity, ease: "linear" }}
+                />
+                <PageHexBadge hue={88} size={26} icon={<IconBolt size={22} />} aria-label="Server shop" />
+              </div>
               <div>
                 <div className="shop-kicker">
                   {BRAND.name} · Tools
                 </div>
-                <h1 className="shop-title">
-                  Server shop.
-                </h1>
+                <motion.h1
+                  className="shop-title flex"
+                  initial="hidden"
+                  animate="visible"
+                  variants={{ visible: { transition: { staggerChildren: 0.03 } } }}
+                  aria-label="Server shop."
+                >
+                  {"Server shop.".split("").map((char, index) => (
+                    <motion.span
+                      key={index}
+                      variants={{
+                        hidden: { opacity: 0, y: 18 },
+                        visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] } },
+                      }}
+                      style={{ display: "inline-block", whiteSpace: char === " " ? "pre" : "normal" }}
+                    >
+                      {char}
+                    </motion.span>
+                  ))}
+                </motion.h1>
                 <p className="shop-subtitle">
                   Drylands command access. Keep your factions synced, your raids rolling, and your losses patched before the next ember storm hits.
                 </p>
